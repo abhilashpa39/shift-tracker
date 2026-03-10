@@ -5,90 +5,569 @@
   <title>Shift Tracker</title>
 
   <style>
+    *{
+      box-sizing:border-box;
+    }
+
     body{
+      margin:0;
       font-family:Arial, sans-serif;
-      padding:20px;
       background:#f5f7fb;
+      color:#1f2937;
     }
 
-    input,button{
-      padding:10px;
-      margin:5px;
-      font-size:16px;
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:16px;
     }
 
-    table{
-      width:100%;
-      margin-top:20px;
-      border-collapse:collapse;
+    .hero{
+      background:linear-gradient(135deg,#2563eb,#38bdf8);
+      color:#fff;
+      padding:20px;
+      border-radius:16px;
+      margin-bottom:16px;
+    }
+
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size:28px;
+    }
+
+    .hero p{
+      margin:0;
+      opacity:0.95;
+      font-size:15px;
+    }
+
+    .card{
       background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:16px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.04);
     }
 
-    td,th{
-      border:1px solid #ccc;
-      padding:10px;
-      text-align:center;
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+      align-items:end;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .field label{
+      font-size:13px;
+      font-weight:bold;
+      color:#4b5563;
+    }
+
+    input, select, button{
+      padding:12px;
+      font-size:16px;
+      border-radius:10px;
+      border:1px solid #d1d5db;
+      background:#fff;
     }
 
     button{
       cursor:pointer;
+      border:none;
+      font-weight:bold;
     }
 
-    .summary{
-      margin-top:20px;
-      padding:15px;
+    .btn-primary{
+      background:#2563eb;
+      color:#fff;
+    }
+
+    .btn-primary:hover{
+      background:#1d4ed8;
+    }
+
+    .btn-secondary{
+      background:#0ea5e9;
+      color:#fff;
+    }
+
+    .btn-secondary:hover{
+      background:#0284c7;
+    }
+
+    .btn-danger{
+      background:#dc2626;
+      color:#fff;
+      padding:8px 12px;
+      font-size:14px;
+    }
+
+    .btn-logout{
+      background:#111827;
+      color:#fff;
+    }
+
+    .time-group{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:6px;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+    }
+
+    .summary-item{
+      background:#f9fafb;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      padding:14px;
+      text-align:center;
+    }
+
+    .summary-item .label{
+      font-size:13px;
+      color:#6b7280;
+      margin-bottom:6px;
+      font-weight:bold;
+    }
+
+    .summary-item .value{
+      font-size:24px;
+      font-weight:bold;
+      color:#111827;
+    }
+
+    .chart-title{
+      font-size:18px;
+      font-weight:bold;
+      margin-bottom:12px;
+    }
+
+    .vertical-chart{
+      display:flex;
+      align-items:flex-end;
+      gap:14px;
+      min-height:260px;
+      overflow-x:auto;
+      padding-top:10px;
+      padding-bottom:10px;
+    }
+
+    .bar-col{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+      min-width:56px;
+      flex:0 0 auto;
+    }
+
+    .bar-value{
+      font-size:12px;
+      font-weight:bold;
+      margin-bottom:8px;
+      color:#111827;
+      text-align:center;
+      word-break:break-word;
+    }
+
+    .bar-wrap{
+      width:36px;
+      height:180px;
+      background:#e5e7eb;
+      border-radius:10px;
+      display:flex;
+      align-items:flex-end;
+      overflow:hidden;
+    }
+
+    .bar{
+      width:100%;
+      background:linear-gradient(180deg,#60a5fa,#2563eb);
+      border-radius:10px 10px 0 0;
+    }
+
+    .bar-label{
+      margin-top:8px;
+      font-size:12px;
+      text-align:center;
+      color:#374151;
+      word-break:break-word;
+    }
+
+    .table-wrap{
+      overflow-x:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:820px;
+    }
+
+    th,td{
+      border-bottom:1px solid #e5e7eb;
+      padding:12px 10px;
+      text-align:center;
+    }
+
+    th{
+      background:#f9fafb;
+      color:#374151;
+      font-size:13px;
+    }
+
+    tr:hover{
+      background:#f8fbff;
+    }
+
+    .empty{
+      color:#6b7280;
+      font-size:14px;
+      padding:10px 0;
+    }
+
+    .top-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+
+    .login-screen{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:linear-gradient(135deg,#dbeafe,#f5f7fb);
+    }
+
+    .login-card{
+      width:100%;
+      max-width:420px;
       background:#fff;
-      border:1px solid #ddd;
+      border:1px solid #e5e7eb;
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .login-card h2{
+      margin:0 0 8px;
+      font-size:28px;
+    }
+
+    .login-card p{
+      margin:0 0 16px;
+      color:#6b7280;
+    }
+
+    .login-error{
+      margin-top:10px;
+      color:#dc2626;
+      font-size:14px;
+      min-height:20px;
+    }
+
+    @media (max-width: 900px){
+      .form-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .summary-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media (max-width: 600px){
+      .container{
+        padding:12px;
+      }
+
+      .hero h1{
+        font-size:24px;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+
+      .summary-grid{
+        grid-template-columns:1fr;
+      }
+
+      input, select, button{
+        width:100%;
+      }
+
+      .vertical-chart{
+        min-height:230px;
+      }
+
+      .bar-wrap{
+        height:150px;
+        width:32px;
+      }
+
+      .bar-col{
+        min-width:52px;
+      }
+
+      .top-actions{
+        justify-content:stretch;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <h2>Shift Tracker</h2>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h2>Shift Tracker</h2>
+      <p>Enter password to continue</p>
 
-  Date
-  <input type="date" id="date">
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password">
+      </div>
 
-  Start
-  <input type="time" id="start">
+      <div style="margin-top:14px;">
+        <button class="btn-primary" onclick="login()">Login</button>
+      </div>
 
-  End
-  <input type="time" id="end">
-
-  Break (minutes)
-  <input type="number" id="break" value="0">
-
-  Hourly Rate
-  <input type="number" id="rate" value="12.30" step="0.01">
-
-  <button onclick="addShift()">Add Shift</button>
-  <button onclick="pullData()">Sync From Google</button>
-
-  <div class="summary">
-    <strong>Total Hours:</strong> <span id="totalHours">0.00</span>
-    <br>
-    <strong>Total Pay:</strong> <span id="totalPay">£0.00</span>
+      <div id="loginError" class="login-error"></div>
+    </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Start</th>
-        <th>End</th>
-        <th>Hours</th>
-        <th>Rate</th>
-        <th>Pay</th>
-      </tr>
-    </thead>
-    <tbody id="table"></tbody>
-  </table>
+  <div id="appScreen" style="display:none;">
+    <div class="container">
+
+      <div class="top-actions">
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
+
+      <div class="hero">
+        <h1>Shift Tracker</h1>
+        <p>Track your shifts, pay, weekly totals, monthly totals, and sync with Google Sheets.</p>
+      </div>
+
+      <div class="card">
+        <div class="form-grid">
+          <div class="field">
+            <label for="date">Date</label>
+            <input type="date" id="date">
+          </div>
+
+          <div class="field">
+            <label>Start</label>
+            <div class="time-group">
+              <select id="startHour"></select>
+              <select id="startMinute">
+                <option value="00" selected>00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <select id="startPeriod">
+                <option value="AM">AM</option>
+                <option value="PM" selected>PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>End</label>
+            <div class="time-group">
+              <select id="endHour"></select>
+              <select id="endMinute">
+                <option value="00" selected>00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <select id="endPeriod">
+                <option value="AM">AM</option>
+                <option value="PM" selected>PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="break">Break (mins)</label>
+            <input type="number" id="break" value="0">
+          </div>
+
+          <div class="field">
+            <label for="rate">Hourly Rate</label>
+            <input type="number" id="rate" value="12.30" step="0.01">
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+          <button class="btn-primary" onclick="addShift()">Add Shift</button>
+          <button class="btn-secondary" onclick="pullData()">Sync From Google</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-title">Summary</div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="label">Total Hours</div>
+            <div class="value" id="totalHours">0.00</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">Total Pay</div>
+            <div class="value" id="totalPay">£0.00</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">This Week Hours</div>
+            <div class="value" id="thisWeekHours">0.00</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">This Week Pay</div>
+            <div class="value" id="thisWeekPay">£0.00</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">This Month Hours</div>
+            <div class="value" id="thisMonthHours">0.00</div>
+          </div>
+          <div class="summary-item">
+            <div class="label">This Month Pay</div>
+            <div class="value" id="thisMonthPay">£0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="chart-title">Weekly Pay Graph</div>
+        <div id="weeklyChart" class="vertical-chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-title">Monthly Pay Graph</div>
+        <div id="monthlyChart" class="vertical-chart"></div>
+      </div>
+
+      <div class="card">
+        <div class="chart-title">Shift History</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Start</th>
+                <th>End</th>
+                <th>Break</th>
+                <th>Hours</th>
+                <th>Rate</th>
+                <th>Pay</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="table"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxRKZDVDIdo4ujbmqGo7YJxRsu7Y3tNvhWCdAAkxbOAJ2ddDIxC6AZ6WMS37icF1OFs/exec";
+const APP_PASSWORD = "abc123..";
+const LOGIN_KEY = "shift_tracker_logged_in";
 
 let shifts = [];
+
+function login() {
+  const input = document.getElementById("loginPassword").value;
+  const error = document.getElementById("loginError");
+
+  if (input === APP_PASSWORD) {
+    localStorage.setItem(LOGIN_KEY, "yes");
+    showApp();
+    error.textContent = "";
+    document.getElementById("loginPassword").value = "";
+  } else {
+    error.textContent = "Incorrect password";
+  }
+}
+
+function logout() {
+  localStorage.removeItem(LOGIN_KEY);
+  showLogin();
+}
+
+function showApp() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("appScreen").style.display = "block";
+  populateHours();
+  pullData();
+}
+
+function showLogin() {
+  document.getElementById("loginScreen").style.display = "flex";
+  document.getElementById("appScreen").style.display = "none";
+}
+
+function checkLogin() {
+  if (localStorage.getItem(LOGIN_KEY) === "yes") {
+    showApp();
+  } else {
+    showLogin();
+  }
+}
+
+function populateHours() {
+  const startHour = document.getElementById("startHour");
+  const endHour = document.getElementById("endHour");
+
+  if (startHour.options.length > 0 && endHour.options.length > 0) return;
+
+  startHour.innerHTML = "";
+  endHour.innerHTML = "";
+
+  for (let i = 1; i <= 12; i++) {
+    const opt1 = document.createElement("option");
+    opt1.value = i;
+    opt1.text = i;
+    if (i === 2) opt1.selected = true;
+    startHour.appendChild(opt1);
+
+    const opt2 = document.createElement("option");
+    opt2.value = i;
+    opt2.text = i;
+    if (i === 4) opt2.selected = true;
+    endHour.appendChild(opt2);
+  }
+}
+
+function convertTo24(hour, minute, period) {
+  hour = Number(hour);
+
+  if (period === "PM" && hour !== 12) {
+    hour += 12;
+  }
+
+  if (period === "AM" && hour === 12) {
+    hour = 0;
+  }
+
+  return String(hour).padStart(2, "0") + ":" + minute;
+}
 
 function calculateHours(start, end, breakMin) {
   let s = start.split(":");
@@ -121,14 +600,24 @@ function normalizeTime(value) {
 
   if (typeof value === "string" && value.includes("T")) {
     let d = new Date(value);
-    let hh = String(d.getHours()).padStart(2, "0");
+    let hh = d.getHours();
     let mm = String(d.getMinutes()).padStart(2, "0");
-    return hh + ":" + mm;
+    let period = hh >= 12 ? "PM" : "AM";
+    hh = hh % 12;
+    if (hh === 0) hh = 12;
+    return hh + ":" + mm + " " + period;
   }
 
   let str = String(value);
-  if (str.length >= 5 && str.includes(":")) {
-    return str.slice(0, 5);
+
+  if (str.includes(":")) {
+    let parts = str.split(":");
+    let hh = Number(parts[0]);
+    let mm = parts[1].slice(0,2);
+    let period = hh >= 12 ? "PM" : "AM";
+    hh = hh % 12;
+    if (hh === 0) hh = 12;
+    return hh + ":" + mm + " " + period;
   }
 
   return str;
@@ -146,39 +635,141 @@ function formatMoney(value) {
   return "£" + cleanMoney(value).toFixed(2);
 }
 
-function render() {
-  let table = document.getElementById("table");
-  let totalHours = 0;
-  let totalPay = 0;
+function getWeekKey(dateStr) {
+  const d = new Date(dateStr + "T12:00:00");
+  const firstDay = new Date(d);
+  const day = (d.getDay() + 6) % 7;
+  firstDay.setDate(d.getDate() - day);
+  return firstDay.toISOString().slice(0, 10);
+}
 
-  table.innerHTML = "";
+function getMonthKey(dateStr) {
+  return dateStr.slice(0, 7);
+}
 
-  shifts.forEach(s => {
-    totalHours += Number(s.hours || 0);
-    totalPay += Number(s.pay || 0);
+function renderVerticalChart(containerId, dataMap) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
 
-    let tr = document.createElement("tr");
+  const entries = Object.entries(dataMap).sort((a, b) => a[0].localeCompare(b[0]));
 
-    tr.innerHTML = `
-      <td>${normalizeDate(s.date)}</td>
-      <td>${normalizeTime(s.start)}</td>
-      <td>${normalizeTime(s.end)}</td>
-      <td>${cleanHours(s.hours).toFixed(2)}</td>
-      <td>${formatMoney(s.rate)}</td>
-      <td>${formatMoney(s.pay)}</td>
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="empty">No data yet.</div>';
+    return;
+  }
+
+  const maxValue = Math.max(...entries.map(x => x[1]), 1);
+
+  entries.forEach(([label, value]) => {
+    const percent = (value / maxValue) * 100;
+
+    const col = document.createElement("div");
+    col.className = "bar-col";
+    col.innerHTML = `
+      <div class="bar-value">${formatMoney(value)}</div>
+      <div class="bar-wrap">
+        <div class="bar" style="height:${percent}%"></div>
+      </div>
+      <div class="bar-label">${label}</div>
     `;
 
-    table.appendChild(tr);
+    container.appendChild(col);
+  });
+}
+
+function updateSummaryAndCharts() {
+  let totalHours = 0;
+  let totalPay = 0;
+  let thisWeekHours = 0;
+  let thisWeekPay = 0;
+  let thisMonthHours = 0;
+  let thisMonthPay = 0;
+
+  const today = new Date();
+  const currentWeek = getWeekKey(today.toISOString().slice(0, 10));
+  const currentMonth = today.toISOString().slice(0, 7);
+
+  const weeklyTotals = {};
+  const monthlyTotals = {};
+
+  shifts.forEach(s => {
+    const date = normalizeDate(s.date);
+    const weekKey = getWeekKey(date);
+    const monthKey = getMonthKey(date);
+
+    const hours = Number(s.hours || 0);
+    const pay = Number(s.pay || 0);
+
+    totalHours += hours;
+    totalPay += pay;
+
+    if (weekKey === currentWeek) {
+      thisWeekHours += hours;
+      thisWeekPay += pay;
+    }
+
+    if (monthKey === currentMonth) {
+      thisMonthHours += hours;
+      thisMonthPay += pay;
+    }
+
+    weeklyTotals[weekKey] = cleanMoney((weeklyTotals[weekKey] || 0) + pay);
+    monthlyTotals[monthKey] = cleanMoney((monthlyTotals[monthKey] || 0) + pay);
   });
 
   document.getElementById("totalHours").textContent = cleanHours(totalHours).toFixed(2);
   document.getElementById("totalPay").textContent = formatMoney(totalPay);
+  document.getElementById("thisWeekHours").textContent = cleanHours(thisWeekHours).toFixed(2);
+  document.getElementById("thisWeekPay").textContent = formatMoney(thisWeekPay);
+  document.getElementById("thisMonthHours").textContent = cleanHours(thisMonthHours).toFixed(2);
+  document.getElementById("thisMonthPay").textContent = formatMoney(thisMonthPay);
+
+  renderVerticalChart("weeklyChart", weeklyTotals);
+  renderVerticalChart("monthlyChart", monthlyTotals);
+}
+
+function render() {
+  let table = document.getElementById("table");
+  table.innerHTML = "";
+
+  shifts
+    .slice()
+    .sort((a, b) => normalizeDate(b.date).localeCompare(normalizeDate(a.date)))
+    .forEach(s => {
+      let tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${normalizeDate(s.date)}</td>
+        <td>${normalizeTime(s.start)}</td>
+        <td>${normalizeTime(s.end)}</td>
+        <td>${Number(s.breakMinutes || 0)}</td>
+        <td>${cleanHours(s.hours).toFixed(2)}</td>
+        <td>${formatMoney(s.rate)}</td>
+        <td>${formatMoney(s.pay)}</td>
+        <td><button class="btn-danger" onclick="deleteShift('${s.id}')">Delete</button></td>
+      `;
+
+      table.appendChild(tr);
+    });
+
+  updateSummaryAndCharts();
 }
 
 async function addShift() {
   let date = document.getElementById("date").value;
-  let start = document.getElementById("start").value;
-  let end = document.getElementById("end").value;
+
+  let start = convertTo24(
+    document.getElementById("startHour").value,
+    document.getElementById("startMinute").value,
+    document.getElementById("startPeriod").value
+  );
+
+  let end = convertTo24(
+    document.getElementById("endHour").value,
+    document.getElementById("endMinute").value,
+    document.getElementById("endPeriod").value
+  );
+
   let breakMin = Number(document.getElementById("break").value);
   let rate = Number(document.getElementById("rate").value);
 
@@ -226,7 +817,31 @@ async function addShift() {
     });
   } catch (err) {
     console.error("Push failed:", err);
-    alert("Saved locally on screen, but push to Google failed.");
+    alert("Saved on screen, but push to Google failed.");
+  }
+}
+
+async function deleteShift(id) {
+  const ok = confirm("Delete this shift?");
+  if (!ok) return;
+
+  shifts = shifts.filter(s => String(s.id) !== String(id));
+  render();
+
+  try {
+    await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: "delete",
+        id: id
+      })
+    });
+  } catch (err) {
+    console.error("Delete failed:", err);
+    alert("Deleted on screen, but delete in Google Sheet failed.");
   }
 }
 
@@ -242,8 +857,8 @@ async function pullData() {
     shifts = data.shifts.map(s => ({
       id: s.id,
       date: normalizeDate(s.date),
-      start: normalizeTime(s.start),
-      end: normalizeTime(s.end),
+      start: s.start,
+      end: s.end,
       breakMinutes: Number(s.breakMinutes || 0),
       hours: cleanHours(s.hours),
       rate: Number(s.hourlyRate || 0),
@@ -257,7 +872,13 @@ async function pullData() {
   }
 }
 
-pullData();
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && document.getElementById("loginScreen").style.display !== "none") {
+    login();
+  }
+});
+
+checkLogin();
 </script>
 
 </body>
