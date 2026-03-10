@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shift Tracker</title>
+
+  <style>
+    body{
+      font-family:Arial, sans-serif;
+      padding:20px;
+      background:#f5f7fb;
+    }
+
+    input,button{
+      padding:10px;
+      margin:5px;
+      font-size:16px;
+    }
+
+    table{
+      width:100%;
+      margin-top:20px;
+      border-collapse:collapse;
+      background:#fff;
+    }
+
+    td,th{
+      border:1px solid #ccc;
+      padding:10px;
+      text-align:center;
+    }
+
+    button{
+      cursor:pointer;
+    }
+
+    .summary{
+      margin-top:20px;
+      padding:15px;
+      background:#fff;
+      border:1px solid #ddd;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Shift Tracker</h2>
+
+  Date
+  <input type="date" id="date">
+
+  Start
+  <input type="time" id="start">
+
+  End
+  <input type="time" id="end">
+
+  Break (minutes)
+  <input type="number" id="break" value="0">
+
+  Hourly Rate
+  <input type="number" id="rate" value="12.30" step="0.01">
+
+  <button onclick="addShift()">Add Shift</button>
+  <button onclick="pullData()">Sync From Google</button>
+
+  <div class="summary">
+    <strong>Total Hours:</strong> <span id="totalHours">0.00</span>
+    <br>
+    <strong>Total Pay:</strong> <span id="totalPay">£0.00</span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Hours</th>
+        <th>Rate</th>
+        <th>Pay</th>
+      </tr>
+    </thead>
+    <tbody id="table"></tbody>
+  </table>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxRKZDVDIdo4ujbmqGo7YJxRsu7Y3tNvhWCdAAkxbOAJ2ddDIxC6AZ6WMS37icF1OFs/exec";
+
+let shifts = [];
+
+function calculateHours(start, end, breakMin) {
+  let s = start.split(":");
+  let e = end.split(":");
+
+  let startMin = Number(s[0]) * 60 + Number(s[1]);
+  let endMin = Number(e[0]) * 60 + Number(e[1]);
+
+  let diff = endMin - startMin - breakMin;
+
+  if (diff < 0) {
+    diff += 24 * 60;
+  }
+
+  return diff / 60;
+}
+
+function normalizeDate(value) {
+  if (!value) return "";
+
+  if (typeof value === "string" && value.includes("T")) {
+    return value.slice(0, 10);
+  }
+
+  return String(value);
+}
+
+function normalizeTime(value) {
+  if (!value) return "";
+
+  if (typeof value === "string" && value.includes("T")) {
+    let d = new Date(value);
+    let hh = String(d.getHours()).padStart(2, "0");
+    let mm = String(d.getMinutes()).padStart(2, "0");
+    return hh + ":" + mm;
+  }
+
+  let str = String(value);
+  if (str.length >= 5 && str.includes(":")) {
+    return str.slice(0, 5);
+  }
+
+  return str;
+}
+
+function cleanMoney(value) {
+  return Math.round(Number(value || 0) * 100) / 100;
+}
+
+function cleanHours(value) {
+  return Math.round(Number(value || 0) * 100) / 100;
+}
+
+function formatMoney(value) {
+  return "£" + cleanMoney(value).toFixed(2);
+}
+
+function render() {
+  let table = document.getElementById("table");
+  let totalHours = 0;
+  let totalPay = 0;
+
+  table.innerHTML = "";
+
+  shifts.forEach(s => {
+    totalHours += Number(s.hours || 0);
+    totalPay += Number(s.pay || 0);
+
+    let tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${normalizeDate(s.date)}</td>
+      <td>${normalizeTime(s.start)}</td>
+      <td>${normalizeTime(s.end)}</td>
+      <td>${cleanHours(s.hours).toFixed(2)}</td>
+      <td>${formatMoney(s.rate)}</td>
+      <td>${formatMoney(s.pay)}</td>
+    `;
+
+    table.appendChild(tr);
+  });
+
+  document.getElementById("totalHours").textContent = cleanHours(totalHours).toFixed(2);
+  document.getElementById("totalPay").textContent = formatMoney(totalPay);
+}
+
+async function addShift() {
+  let date = document.getElementById("date").value;
+  let start = document.getElementById("start").value;
+  let end = document.getElementById("end").value;
+  let breakMin = Number(document.getElementById("break").value);
+  let rate = Number(document.getElementById("rate").value);
+
+  if (!date || !start || !end) {
+    alert("Please fill date, start time and end time.");
+    return;
+  }
+
+  let h = cleanHours(calculateHours(start, end, breakMin));
+  let pay = cleanMoney(h * rate);
+  let id = String(Date.now());
+
+  let shift = {
+    id: id,
+    date: date,
+    start: start,
+    end: end,
+    breakMinutes: breakMin,
+    hours: h,
+    rate: rate,
+    pay: pay
+  };
+
+  shifts.push(shift);
+  render();
+
+  try {
+    await fetch(API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: "upsert",
+        id: id,
+        date: date,
+        start: start,
+        end: end,
+        breakMinutes: breakMin,
+        hours: h,
+        hourlyRate: rate,
+        pay: pay,
+        source: "shift-tracker"
+      })
+    });
+  } catch (err) {
+    console.error("Push failed:", err);
+    alert("Saved locally on screen, but push to Google failed.");
+  }
+}
+
+async function pullData() {
+  try {
+    let r = await fetch(API);
+    let data = await r.json();
+
+    if (!data || data.status !== "success") {
+      throw new Error(data && data.message ? data.message : "Pull failed");
+    }
+
+    shifts = data.shifts.map(s => ({
+      id: s.id,
+      date: normalizeDate(s.date),
+      start: normalizeTime(s.start),
+      end: normalizeTime(s.end),
+      breakMinutes: Number(s.breakMinutes || 0),
+      hours: cleanHours(s.hours),
+      rate: Number(s.hourlyRate || 0),
+      pay: cleanMoney(s.pay)
+    }));
+
+    render();
+  } catch (err) {
+    console.error("Pull failed:", err);
+    alert("Pull from Google failed: " + err.message);
+  }
+}
+
+pullData();
+</script>
+
+</body>
+</html>
